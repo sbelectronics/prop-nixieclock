@@ -3,6 +3,7 @@ VAR
    long myStack[12]
    long dispValue[4]
    long dispDot
+   long dim
 
 PUB Start(digpin, segpin, digits)
    DigPin := digpin
@@ -10,6 +11,8 @@ PUB Start(digpin, segpin, digits)
    SegPin0 := segpin
    SegPin7 := segpin+7
    DigCount := digits
+
+   dim := false
 
    dispValue[0] := 56
    dispValue[1] := 34
@@ -26,6 +29,9 @@ PUB SetHours(v)
 
 PUB SetMinutes(v)
    dispValue[1] := v
+
+PUB SetDim(v)
+   dim:=v
    
 PUB SetColons(v)
    if v
@@ -54,6 +60,10 @@ PRI ShowValue | digPos, displayValue, wordPos, divisor, v
           repeat digPos from 0 to 1
              outa[SegPin7..SegPin0] ~
              outa[DigPin0..DigPin2] := byte[@DigSel + (wordPos*2) + digPos]
+
+             if (dim)
+                 waitcnt (clkfreq / 10_000 * 25 + cnt)
+             
              if (wordPos*2+digPos)>1
                   v := byte[@Dig0i + dispValue[wordPos] / divisor // 10]
                   if (dispDot & (1 << (wordPos*2+digPos)))

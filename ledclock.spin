@@ -9,6 +9,7 @@ OBJ
   display : "7segdouble"
   rtc : "ds1302"
   gps : "gpsdriver2"
+  light : "light"
   'pst : "Parallax Serial Terminal"  
 
 PUB main
@@ -21,6 +22,8 @@ PUB main
     dst := 0
 
     display.Start(8, 0, 4)
+
+    light.Start(18)
 
     'pst.start(115200)
 
@@ -67,7 +70,7 @@ PUB check_dst(y, m, d, h) | i,bSaving
    else
         return 0
 
-PUB gps_clockloop | lastMinutes, t, gpsPointer
+PUB gps_clockloop | lastMinutes, t, gpsPointer, bright
     gpsPointer := gps.start(20, 21, 0, 9600)
         
     repeat
@@ -77,6 +80,15 @@ PUB gps_clockloop | lastMinutes, t, gpsPointer
         year := long[gpsPointer+12]
         month := long[gpsPointer+16]
         day := long[gpsPointer+20]
+
+        bright := light.get_average
+        'pst.dec(bright)
+        'pst.char(13)                                              
+
+        if (bright > 2000)
+            display.SetDim(true)
+        else
+            display.SetDim(false)
 
         t := check_dst(year, month, day, hours)
         if (t==0)
